@@ -6,3 +6,4 @@ spring:
   config:
     import: optional:configserver:http://admin:1234@localhost:9000
       
+
