@@ -1,3 +1,13 @@
+server:
+  port: 8081
+
 spring:
   application:
     name: liveF_Data-Service
+
+eureka:
+  client:
+    register-with-eureka: true # 이 서비스를 유레카 서버에 등록함 (클라이언트 역할)
+    fetch-registry: true       # 유레카 서버의 서비스 주소록 정보를 가져옴 (클라이언트 역할)
+    service-url:
+      defaultZone: "http://admin:1234@localhost:8761/eureka" # 유레카 서버의 주소

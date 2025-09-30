@@ -1,0 +1,2 @@
+rootProject.name = 'Back'
+include 'liveF_Auth-Service', 'liveF_Data-Service', 'liveF_Community-Service', 'liveF_ApiGateway', 'liveF_eurekaServer'

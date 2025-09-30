@@ -1,3 +1,34 @@
+server:
+  port: 8081
+
 spring:
   application:
     name: liveF_ApiGateway
+  cloud:
+    gateway:
+#      default-filters:
+#        - name: GlobalFilter
+#        - name: LoggingFilter
+      routes:
+        # 인증 서비스
+        - id: authServiceRoute
+          uri: http://localhost:8082
+          predicates:
+            - Path=/auth/**
+
+        # 커뮤니티 서비스
+        - id: communityServiceRoute
+          uri: http://localhost:8083
+          predicates:
+            - Path=/community/**
+
+        # 데이터 서비스
+        - id: dataServiceRoute
+          uri: http://localhost:8084
+          predicates:
+            - Path=/data/**
+
+
+
+
+
