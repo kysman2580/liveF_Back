@@ -1,0 +1,4 @@
+/.metadata/
+
+*.yml
+liveF_Config-Server/src/main/resources/application.yml
