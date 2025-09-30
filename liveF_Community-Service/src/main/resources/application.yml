@@ -1,3 +1,8 @@
 spring:
   application:
-    name: liveF_Community-Service
+    name: community
+  profiles:
+    active: dev
+  config:
+    import: optional:configserver:http://admin:1234@localhost:9000
+      

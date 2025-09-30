@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-/.metadata/
-
-*.yml
-liveF_Config-Server/src/main/resources/application.yml
-=======
 HELP.md
 .gradle
 build/
@@ -41,4 +35,3 @@ out/
 
 ### VS Code ###
 .vscode/
->>>>>>> c801552481d60984bc0a7558a14d835f96886a8e
