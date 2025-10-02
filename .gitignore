@@ -2,8 +2,18 @@
 
 *.yml
 liveF_Config-Server/src/main/resources/application.yml
+<<<<<<< HEAD
+=======
+
+>>>>>>> 13598781b80624719e0936cce4124a44b4bae015
 HELP.md
 .gradle
+
+gradlew
+gradlew.bat
+settings.gradle
+gradle/wrapper
+
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
@@ -39,3 +49,7 @@ out/
 
 ### VS Code ###
 .vscode/
+<<<<<<< HEAD
+=======
+
+>>>>>>> 13598781b80624719e0936cce4124a44b4bae015

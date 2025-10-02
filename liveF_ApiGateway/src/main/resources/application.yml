@@ -3,34 +3,17 @@ server:
 
 spring:
   application:
-    name: liveF_ApiGateway
-  cloud:
-    gateway:
-      routes:
-        # 인증 서비스
-        - id: authServiceRoute
-          uri: lb://liveF_Auth-Service
-          predicates:
-            - Path=/auth/**
-
-        # 커뮤니티 서비스
-        - id: communityServiceRoute
-          uri: lb://liveF_Community-Service
-          predicates:
-            - Path=/community/**
-
-        # 데이터 서비스
-        - id: dataServiceRoute
-          uri: lb://liveF_Data-Service
-          predicates:
-            - Path=/data/**
+    name: gateway
+  profiles:
+    active: dev
+  config:
+    import: optional:configserver:http://admin:1234@localhost:9000
 
 eureka:
-  client:
-    register-with-eureka: true  # 콘솔에 게이트웨이 보이게
-    fetch-registry: true        # lb:// 쓰려면 필수
-    service-url:
-      defaultZone: "http://admin:1234@localhost:8761/eureka"
+  instance:
+    ip-address: 127.0.0.1
+    hostname: localhost
+    instance-id: ${eureka.instance.ip-address}:${spring.application.name}:${server.port}
 
 
 
