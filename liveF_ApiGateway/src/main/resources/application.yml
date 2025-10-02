@@ -1,34 +1,16 @@
-server:
-  port: 8081
-
 spring:
   application:
-    name: liveF_ApiGateway
-  cloud:
-    gateway:
-#      default-filters:
-#        - name: GlobalFilter
-#        - name: LoggingFilter
-      routes:
-        # 인증 서비스
-        - id: authServiceRoute
-          uri: http://localhost:8082
-          predicates:
-            - Path=/auth/**
+    name: gateway
+  profiles:
+    active: dev
+  config:
+    import: optional:configserver:http://admin:1234@localhost:9000
 
-        # 커뮤니티 서비스
-        - id: communityServiceRoute
-          uri: http://localhost:8083
-          predicates:
-            - Path=/community/**
-
-        # 데이터 서비스
-        - id: dataServiceRoute
-          uri: http://localhost:8084
-          predicates:
-            - Path=/data/**
-
-
+eureka:
+  instance:
+    ip-address: 127.0.0.1
+    hostname: localhost
+    instance-id: ${eureka.instance.ip-address}:${spring.application.name}:${server.port}
 
 
 
