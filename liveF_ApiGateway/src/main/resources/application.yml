@@ -1,34 +1,36 @@
 server:
-  port: 8081
+  port: 8080
 
 spring:
   application:
     name: liveF_ApiGateway
   cloud:
     gateway:
-#      default-filters:
-#        - name: GlobalFilter
-#        - name: LoggingFilter
       routes:
         # 인증 서비스
         - id: authServiceRoute
-          uri: http://localhost:8082
+          uri: lb://liveF_Auth-Service
           predicates:
             - Path=/auth/**
 
         # 커뮤니티 서비스
         - id: communityServiceRoute
-          uri: http://localhost:8083
+          uri: lb://liveF_Community-Service
           predicates:
             - Path=/community/**
 
         # 데이터 서비스
         - id: dataServiceRoute
-          uri: http://localhost:8084
+          uri: lb://liveF_Data-Service
           predicates:
             - Path=/data/**
 
-
+eureka:
+  client:
+    register-with-eureka: true  # 콘솔에 게이트웨이 보이게
+    fetch-registry: true        # lb:// 쓰려면 필수
+    service-url:
+      defaultZone: "http://admin:1234@localhost:8761/eureka"
 
 
 
