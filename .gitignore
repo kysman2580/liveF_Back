@@ -5,6 +5,11 @@ liveF_Config-Server/src/main/resources/application.yml
 
 HELP.md
 .gradle
+
+gradlew
+gradlew.bat
+settings.gradle
+
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
