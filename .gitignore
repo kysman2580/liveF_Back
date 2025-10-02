@@ -9,6 +9,7 @@ HELP.md
 gradlew
 gradlew.bat
 settings.gradle
+gradle/wrapper
 
 build/
 !gradle/wrapper/gradle-wrapper.jar
