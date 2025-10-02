@@ -1,13 +1,13 @@
-server:
-  port: 8081
-
 spring:
   application:
-    name: liveF_Data-Service
+    name: data
+  profiles:
+    active: dev
+  config:
+    import: optional:configserver:http://admin:1234@localhost:9000
 
 eureka:
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: "http://admin:1234@localhost:8761/eureka" 
+  instance:
+    ip-address: 127.0.0.1
+    hostname: localhost
+    instance-id: ${eureka.instance.ip-address}:${spring.application.name}:${server.port}

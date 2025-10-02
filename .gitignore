@@ -1,3 +1,8 @@
+/.metadata/
+
+*.yml
+liveF_Config-Server/src/main/resources/application.yml
+
 HELP.md
 .gradle
 build/
@@ -35,3 +40,4 @@ out/
 
 ### VS Code ###
 .vscode/
+

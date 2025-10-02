@@ -40,7 +40,6 @@ public class SecurityConfig {
 
         UserDetails user = User.builder()
                 .username("admin")
-                .password("1234")
                 .password(bCryptPasswordEncoder().encode("1234"))
                 .roles("ADMIN")
                 .build();
