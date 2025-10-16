@@ -2,6 +2,9 @@
 
 *.yml
 liveF_Config-Server/src/main/resources/application.yml
+liveF_Auth-Service/src/main/resources/application.yml
+liveF_ApiGateway/src/main/resources/application.yml
+
 
 HELP.md
 .gradle
