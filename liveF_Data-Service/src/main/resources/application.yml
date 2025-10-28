@@ -8,6 +8,7 @@ spring:
 
 eureka:
   instance:
-    ip-address: 127.0.0.1
-    hostname: localhost
-    instance-id: ${eureka.instance.ip-address}:${spring.application.name}:${server.port}
+    prefer-ip-address: true
+    ip-address: 127.0.0.1  # ✅ 핵심: localhost IP로 강제 지정
+    instance-id: ${spring.application.name}:127.0.0.1:${server.port}
+    non-secure-port: ${server.port}
