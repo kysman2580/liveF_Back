@@ -2,10 +2,12 @@
 
 *.yml
 liveF_Config-Server/src/main/resources/application.yml
-<<<<<<< HEAD
-=======
+liveF_Auth-Service/src/main/resources/application.yml
+liveF_ApiGateway/src/main/resources/application.yml
+liveF_Community-Service/src/main/resources/application.yml
+liveF_Data-Service/src/main/resources/application.yml
+liveF_Member-Service/src/main/resources/application.yml
 
->>>>>>> 13598781b80624719e0936cce4124a44b4bae015
 HELP.md
 .gradle
 
@@ -49,7 +51,3 @@ out/
 
 ### VS Code ###
 .vscode/
-<<<<<<< HEAD
-=======
-
->>>>>>> 13598781b80624719e0936cce4124a44b4bae015

@@ -1,7 +1,15 @@
 spring:
+  data:
+    redis:
+      host: 13.209.7.21
+      port: 6379
+      password: 1234
+      timeout: 2s
   application:
     name: auth
   profiles:
     active: dev
   config:
     import: optional:configserver:http://admin:1234@localhost:9000
+jwt:
+  secret: DYB7u9huTcS72Ti8HpLCxavcoO3Ca4LEvhhzrdxAmzoXwiChA4YVuFp58gs+TPvixqqat7jWuR/sRekiRn48xw==
