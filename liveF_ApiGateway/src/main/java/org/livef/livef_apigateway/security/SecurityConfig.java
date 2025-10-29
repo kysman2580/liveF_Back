@@ -36,9 +36,7 @@ public class SecurityConfig {
                 .pathMatchers(HttpMethod.PUT,   "/api/**").authenticated()
                 .pathMatchers(HttpMethod.PATCH, "/api/**").authenticated()
                 .pathMatchers(HttpMethod.DELETE,"/api/**").authenticated()
-
-                // 나머지는 허용(원하면 authenticated()로 바꿔도 됨)
-                .anyExchange().permitAll()
+                .pathMatchers(HttpMethod.GET,"/api/**").authenticated()
                 )
           .build();
                   

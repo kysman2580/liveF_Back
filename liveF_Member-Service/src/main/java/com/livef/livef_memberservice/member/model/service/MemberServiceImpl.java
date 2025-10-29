@@ -53,7 +53,8 @@ public class MemberServiceImpl implements MemberService {
 
 	@Override
 	public void updateMember(MemberDTO member) {
-		
+		MemberEntity existing = memberRepository.findById(member.getMemberNo())
+		        .orElseThrow(() -> new RuntimeException("회원이 존재하지 않습니다."));
 	}
 	
 	private MemberEntity getMemberEntity(MemberDTO member) {

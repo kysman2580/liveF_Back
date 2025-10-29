@@ -44,8 +44,8 @@ public class MemberController {
 	
 	// 마이페이지 조회
 	@GetMapping("/myInfo")
-	public ResponseEntity<ResponseData> selectMyInfo(@AuthenticationPrincipal CustomUserDetails member) {
-		Map<String, Object> data = memberService.selectMyInfo(member.getMemberNo());
+	public ResponseEntity<ResponseData> selectMyInfo(@RequestHeader(value="X-User-No", required=false) Long memberNo) {
+		Map<String, Object> data = memberService.selectMyInfo(memberNo);
 		return ResponseEntity.ok(responseUtil.getResponseData(data, "내 정보가 조회되었습니다.", "200"));
 	}
 	
