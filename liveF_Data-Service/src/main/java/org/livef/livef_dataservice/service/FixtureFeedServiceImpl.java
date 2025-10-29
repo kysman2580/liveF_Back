@@ -12,106 +12,54 @@ import org.livef.livef_dataservice.dto.TodayFixtureDetail;
 import org.livef.livef_dataservice.dto.TodayFixtureResponse;
 import org.livef.livef_dataservice.repoisitory.FixtureCacheRepository;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class FixtureFeedServiceImpl implements FixtureFeedService {
+
     private final FixtureCacheRepository fixtureCacheRepository;
     private final ObjectMapper objectMapper;
 
-    /*@Override
-    @Deprecated
-    public List<TodayFixtureDetail> getTodayFixturesByLeague(int leagueId) {
-        // 기존 로직 유지 (단일 날짜만 처리)
-        // 이 메서드는 더 이상 사용하지 않고 getThreeDayFixturesByLeague를 사용하도록 권장합니다.
-        String json = fixtureCacheRepository.getTodayFixturesJson();
-        if (json == null || json.trim().isEmpty()) {
-            return Collections.emptyList();
-        }
-        return processFixturesJson(List.of(json), leagueId);
-    }*/
 
     // 💡 새로운 메서드: 3일치 데이터를 통합 처리
     @Override
-    public List<TodayFixtureDetail> getThreeDayFixturesByLeague(int leagueId) {
-        // 1. Repository에서 어제, 오늘, 내일의 JSON 리스트를 가져옵니다.
-        List<String> threeDayJsons = fixtureCacheRepository.getThreeDayFixturesJson();
-        log.info("Successfully fetched {} days of JSON data from cache.", threeDayJsons.size());
-
-        if (threeDayJsons.isEmpty()) {
-            log.warn("No fixture data found in cache for the 3-day range.");
-            return Collections.emptyList();
-        }
-
-        // 2. JSON 리스트를 처리하여 최종 TodayFixtureDetail 리스트를 얻습니다.
-        List<TodayFixtureDetail> details = processFixturesJson(threeDayJsons, leagueId);
-
-        // 3. 3일치 데이터를 시간 순으로 통합 정렬합니다. (가장 중요)
-        // 킥오프 시간(kickoffTime) 기준으로 오름차순 정렬합니다.
-        details.sort((d1, d2) -> {
-            if (d1.getKickoffTime() == null) return 1;
-            if (d2.getKickoffTime() == null) return -1;
-            return d1.getKickoffTime().compareTo(d2.getKickoffTime());
-        });
-
-        log.info("Total {} fixtures processed and sorted for league ID {}.", details.size(), leagueId);
-        return details;
-    }
-
-
-    // 💡 JSON 리스트를 받아 처리하는 공통 로직 분리
-    private List<TodayFixtureDetail> processFixturesJson(List<String> jsons, int leagueId) {
-        List<TodayFixtureResponse> allFixtures = new ArrayList<>();
-
-        for (String json : jsons) {
-            if (json == null || json.trim().isEmpty()) continue;
-
-            try {
-                // 1. JSON 유효성 및 형식 검사
-                JsonNode jsonNode = objectMapper.readTree(json);
-                if (!jsonNode.isArray()) {
-                    log.error("Invalid JSON structure: not an array. JSON snippet: {}", json.substring(0, Math.min(json.length(), 200)));
-                    continue;
-                }
-
-                // 2. DTO 역직렬화 및 리스트 추가
-                List<TodayFixtureResponse> dayFixtures = objectMapper.readValue(json, new TypeReference<List<TodayFixtureResponse>>() {});
-                allFixtures.addAll(dayFixtures);
-
-            } catch (JsonProcessingException e) {
-                log.error("Failed to parse or deserialize JSON chunk.", e);
-            } catch (Exception e) {
-                log.error("Unexpected error during fixture deserialization of a chunk.", e);
-            }
-        }
-
-        // 3. 인자로 받은 leaguesId로 필터링
-        List<TodayFixtureResponse> filteredFixtures = allFixtures.stream()
-                .filter(fixture ->
-                        fixture.getLeague() != null &&
-                                fixture.getLeague().getId() == leagueId)
-                .toList();
-
-        // 4. 최종 Detail DTO로 변환
-        return transformToDetails(filteredFixtures);
-    }
-
-
-    // ******************** 기존 도우미 메서드 유지 ********************
-
-    private List<TodayFixtureDetail> transformToDetails(List<TodayFixtureResponse> fixtures) {
-        return fixtures.stream()
+    public Flux<TodayFixtureDetail> getThreeDayFixturesByLeague(int leagueId) {
+        return fixtureCacheRepository.getThreeDayFixturesJson()  // Flux<String>
+                .flatMap(json -> parseJsonAsync(json))  // Flux<TodayFixtureResponse>
+                .filter(f -> f.getLeague() != null && f.getLeague().getId() == leagueId)
                 .map(this::toFixtureDetail)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .sort(Comparator.comparing(TodayFixtureDetail::getKickoffTime,
+                        Comparator.nullsLast(Comparator.naturalOrder())))
+                .doOnNext(detail -> log.debug("Emitting fixture: {}", detail.getFixtureId()))
+                .doOnError(e -> log.error("Service error for leagueId: {}", leagueId, e))
+                .onErrorResume(e -> Flux.empty());
+    }
+
+
+    // JSON 파싱을 비동기로 처리
+    private Flux<TodayFixtureResponse> parseJsonAsync(String json) {
+        if (json == null || json.trim().isEmpty() || "[]".equals(json)) {
+            return Flux.empty();
+        }
+
+        return Mono.fromCallable(() ->
+                        objectMapper.readValue(json, new TypeReference<List<TodayFixtureResponse>>() {})
+                )
+                .subscribeOn(Schedulers.boundedElastic())  // CPU 작업 분리
+                .flatMapMany(Flux::fromIterable)
+                .onErrorResume(e -> {
+                    log.error("JSON parsing failed: {}", json.substring(0, Math.min(200, json.length())), e);
+                    return Flux.empty();
+                });
     }
 
     private TodayFixtureDetail toFixtureDetail(TodayFixtureResponse fixture) {
