@@ -17,4 +17,6 @@ public interface TokenService {
 	Map<String, Object> checkRefreshToken(String token);
 	
 	void deleteRefreshToken(Long memberNo);
+	
+	
 }

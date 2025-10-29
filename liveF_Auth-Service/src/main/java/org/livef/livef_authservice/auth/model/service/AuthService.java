@@ -11,5 +11,7 @@ public interface AuthService {
 	
 	CustomUserDetails getUserDetails();
 
-	Map<String, Object> logout();
+	Map<String, Object> logout(Long memberNo);
+
+	Map<String, Object> getMemberInfo(String refreshToken);
 }

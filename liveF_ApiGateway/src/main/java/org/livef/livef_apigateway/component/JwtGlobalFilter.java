@@ -35,21 +35,18 @@ public class JwtGlobalFilter implements GlobalFilter, Ordered{
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 
-       /* 
-        * 2. header에 토큰이 있는지 / Bearer로 시작하는지 검증
-        * 3. 아니라면 그냥 다음필터 진행 하도록 리턴
-        * 4. 맞다면 토큰을 파싱해서 payload에서 claims(사용자 정보) 추출
-        * 5. 사용자 정보를 추출하여 헤더에 담아서 각 서비스로 가게함.
-        */
+       
+    	String token = null;
     	
-    	
-    	String authorization = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-    	
-    	if (authorization == null || !authorization.startsWith("Bearer ")) {
-    		return chain.filter(exchange);
+    	var cookies = exchange.getRequest().getCookies().get("ACCESS_TOKEN");
+        if (cookies != null && !cookies.isEmpty()) {
+            token = cookies.get(0).getValue();
         }
-    	String token = authorization.substring(7);
-
+        
+        if (token == null || token.isBlank()) {
+            return chain.filter(exchange);
+        }
+        
     	try {
              // JWT 검증 및 파싱
             
@@ -60,6 +57,7 @@ public class JwtGlobalFilter implements GlobalFilter, Ordered{
            String username = claims.getSubject();
            String role = (String) claims.get("role");
              
+           log.info("제발~~~~~~~~~~ : {},{},{}",memberNo,username,role);
              // 사용자 정보를 헤더에 담기
            exchange = exchange.mutate()
                .request(exchange.getRequest().mutate()
