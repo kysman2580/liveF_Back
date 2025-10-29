@@ -66,6 +66,11 @@ public class MemberServiceImpl implements MemberService {
 				.build();
 		return memberEntity;
 	}
+
+	@Override
+	public void deleteMember(Long memberNo) {
+		memberRepository.deleteById(memberNo);
+	}
 	
 
 

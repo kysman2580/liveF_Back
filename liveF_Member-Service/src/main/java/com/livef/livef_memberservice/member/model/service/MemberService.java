@@ -21,4 +21,7 @@ public interface MemberService {
 	// 회원 정보 수정
 	void updateMember(MemberDTO member);
 
+	// 회원 탈퇴
+	void deleteMember(Long memberNo);
+
 }

@@ -9,6 +9,7 @@ import org.livef.livef_authservice.auth.model.service.AuthServiceImpl;
 import org.livef.livef_authservice.token.model.domain.RefreshToken;
 import org.livef.livef_authservice.token.model.repository.RefreshTokenRepository;
 import org.livef.livef_authservice.token.util.TokenUtil;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Claims;
@@ -57,8 +58,23 @@ public class TokenServiceImpl implements TokenService {
 		}
 		
 		String username = getUsernameByToken(refreshToken);
-		return generateToken(username, memberNo);
+		Map<String, Object> tokens =  generateToken(username, memberNo);
+		Map<String, Object> Response = new HashMap<>();
+	    Response.put("accessCookie",  buildCookie("ACCESS_TOKEN",  (String)tokens.get("accessToken"),  15 * 60));
+	    Response.put("refreshCookie", buildCookie("REFRESH_TOKEN", (String)tokens.get("refreshToken"), 7 * 24 * 60 * 60));
+		return Response;
 	}
+	
+	private ResponseCookie buildCookie(String name, String token, int maxAgeSeconds) {
+	    return ResponseCookie.from(name, token)
+	        .path("/")
+	        .maxAge(maxAgeSeconds)
+	        .httpOnly(true)
+	        .secure(false)        // 로컬 http 개발이면 false
+	        .sameSite("Lax")    // 크로스도메인일 때 필요
+	        .build();
+	}
+
 	
 
 	private String getUsernameByToken(String refreshToken) {

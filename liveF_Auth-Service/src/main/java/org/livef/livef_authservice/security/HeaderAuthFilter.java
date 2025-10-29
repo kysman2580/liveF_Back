@@ -1,4 +1,4 @@
-package com.livef.livef_memberservice.security;
+package org.livef.livef_authservice.security;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,7 +12,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

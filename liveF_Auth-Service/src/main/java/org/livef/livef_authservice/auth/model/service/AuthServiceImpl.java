@@ -2,11 +2,15 @@ package org.livef.livef_authservice.auth.model.service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.livef.livef_authservice.auth.model.dto.MemberDTO;
+import org.livef.livef_authservice.auth.model.entity.MemberEntity;
+import org.livef.livef_authservice.auth.model.repository.MemberRepository;
 import org.livef.livef_authservice.auth.model.vo.CustomUserDetails;
 import org.livef.livef_authservice.exception.CustomAuthenticationException;
 import org.livef.livef_authservice.token.model.service.TokenService;
+import org.livef.livef_authservice.token.util.TokenUtil;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,6 +19,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,6 +31,8 @@ public class AuthServiceImpl implements AuthService{
 	private final AuthenticationManager authenticationManager;
 	private Authentication authentication;
 	private final TokenService tokenService;
+	private final TokenUtil tokenUtil;
+	private final MemberRepository memberRepository;
 	
 	public Map<String, Object> login(MemberDTO member) {
 		
@@ -64,9 +71,12 @@ public class AuthServiceImpl implements AuthService{
 	
 	@Override
 	public CustomUserDetails getUserDetails() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
-		return user;
+	    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+	    if (auth == null || !auth.isAuthenticated() || auth.getPrincipal() == null) return null;
+
+	    Object p = auth.getPrincipal();
+	    if (p instanceof CustomUserDetails cud) return cud;
+	    return null;
 	}
 	
 	private ResponseCookie buildCookie(String name, String token, int maxAgeSeconds) {
@@ -74,17 +84,32 @@ public class AuthServiceImpl implements AuthService{
 	        .path("/")
 	        .maxAge(maxAgeSeconds)
 	        .httpOnly(true)
-	        .secure(true)        // 로컬 http 개발이면 false
-	        .sameSite("None")    // 크로스도메인일 때 필요
+	        .secure(false)        // 로컬 http 개발이면 false
+	        .sameSite("Lax")    // 크로스도메인일 때 필요
 	        .build();
 	}
 
 	@Override
-	public Map<String, Object> logout() {
-		tokenService.deleteRefreshToken(getUserDetails().getMemberNo());
+	public Map<String, Object> logout(Long memberNo) {
+		tokenService.deleteRefreshToken(memberNo);
 		Map<String, Object> data = new HashMap<>();
 		data.put("accessCookie",  buildCookie("ACCESS_TOKEN",  "", 0));
 		data.put("refreshCookie", buildCookie("REFRESH_TOKEN", "", 0));
 		return data;
+	}
+
+	@Override
+	public Map<String, Object> getMemberInfo(String refreshToken) {
+		String username = getUsernameByToken(refreshToken);
+		Optional<MemberEntity> memberInfo = memberRepository.findByMemberId(username);
+		Map<String, Object> loginResponse = new HashMap<>();
+		loginResponse.put("memberInfo",  memberInfo);
+		
+		return loginResponse;
+	}
+	
+	private String getUsernameByToken(String refreshToken) {
+		Claims claims = tokenUtil.parseJwt(refreshToken);
+		return claims.getSubject();
 	}
 }
