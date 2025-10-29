@@ -8,8 +8,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Getter
@@ -17,6 +19,8 @@ import lombok.ToString;
 @Entity
 @Table(name = "member")
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor  
 public class MemberEntity {
 	 @Id @Column(name = "memberNo") @GeneratedValue(strategy = GenerationType.IDENTITY)
      private Long memberNo;
