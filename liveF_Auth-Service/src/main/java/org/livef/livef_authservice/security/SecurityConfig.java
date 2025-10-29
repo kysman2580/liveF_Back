@@ -30,7 +30,7 @@ public class SecurityConfig {
         		.formLogin(f -> f.disable())
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults())
+                .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> {
                     requests.requestMatchers("/api/auth/login").permitAll();
                     requests.requestMatchers("/api/auth/logout").authenticated();
