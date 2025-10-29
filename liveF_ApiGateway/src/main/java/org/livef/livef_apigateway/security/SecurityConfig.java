@@ -27,11 +27,13 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .httpBasic(b -> b.disable())
             .formLogin(f -> f.disable())
-            .cors(Customizer.withDefaults())
             .securityContextRepository(NoOpServerSecurityContextRepository.getInstance()) //session STATELESS
             .addFilterAfter(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
             // 라우트 허용/차단 // 사용자 권한 별 접근도 설정 가능
             .authorizeExchange(ex -> ex
+
+                .pathMatchers("/ws/**").permitAll()  // ✅ 추가!
+
             	.pathMatchers("/api/auth/login", "/api/auth/refresh","/api/member/sign-up").permitAll()
                 .pathMatchers(HttpMethod.PUT,   "/api/**").authenticated()
                 .pathMatchers(HttpMethod.PATCH, "/api/**").authenticated()

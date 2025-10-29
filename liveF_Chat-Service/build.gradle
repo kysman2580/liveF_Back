@@ -1,0 +1,54 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.3.5'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'org.example'
+version = '0.0.1-SNAPSHOT'
+description = 'liveF_Chat-Service'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencyManagement {
+	imports {
+		// [중요] 사용하시는 Spring Boot 3.5.x 버전에 맞는 Spring Cloud 버전(Release Train)을 명시합니다.
+		// Spring Boot 3.x 계열은 주로 2022.x.x, 2023.x.x 등의 Cloud 버전을 사용합니다.
+		// 예시로 '2023.0.4'를 사용했지만, 실제 Spring Boot 3.5.6에 맞는 버전을 공식 문서에서 확인하세요.
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:2023.0.3"
+	}
+}
+
+dependencies {
+	// 1. 웹 + MVC + 내장 서버
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	// 2. 웹소켓 + STOMP
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+	// 3. 클라우드
+	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+	implementation 'org.springframework.cloud:spring-cloud-starter-config'
+
+	// 4. 데이터
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'com.mysql:mysql-connector-j'
+
+	// 5. Lombok
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

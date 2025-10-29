@@ -5,3 +5,10 @@ spring:
     active: dev
   config:
     import: optional:configserver:http://admin:1234@localhost:9000
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    ip-address: 127.0.0.1  # ✅ 핵심: localhost IP로 강제 지정
+    instance-id: ${spring.application.name}:127.0.0.1:${server.port}
+    non-secure-port: ${server.port}

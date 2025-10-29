@@ -27,6 +27,7 @@ public class SecurityConfig {
         return httpSecurity.formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> {
                     requests.requestMatchers(HttpMethod.POST, "/api/test", "/api/member/mypage-info").authenticated();
                     requests.requestMatchers(HttpMethod.DELETE).authenticated();
