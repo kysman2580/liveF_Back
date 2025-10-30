@@ -35,7 +35,7 @@ public class JwtGlobalFilter implements GlobalFilter, Ordered{
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 
-       
+    	
     	String token = null;
     	
     	var cookies = exchange.getRequest().getCookies().get("ACCESS_TOKEN");

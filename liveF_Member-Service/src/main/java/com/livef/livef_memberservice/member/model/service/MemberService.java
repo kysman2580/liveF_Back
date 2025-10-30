@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.livef.livef_memberservice.member.model.dto.MemberDTO;
+import com.livef.livef_memberservice.member.model.dto.MemberUpdateDTO;
 
 import jakarta.validation.Valid;
 
@@ -19,7 +20,7 @@ public interface MemberService {
 	Map<String, Object> selectMemberList();
 
 	// 회원 정보 수정
-	void updateMember(MemberDTO member);
+	void updateMember(MemberUpdateDTO member);
 
 	// 회원 탈퇴
 	void deleteMember(Long memberNo);

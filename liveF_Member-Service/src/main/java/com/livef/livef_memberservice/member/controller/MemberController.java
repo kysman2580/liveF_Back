@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.livef.livef_memberservice.member.model.dto.MemberDTO;
+import com.livef.livef_memberservice.member.model.dto.MemberUpdateDTO;
 import com.livef.livef_memberservice.member.model.service.MemberService;
 import com.livef.livef_memberservice.util.dto.ResponseData;
 import com.livef.livef_memberservice.util.response.ResponseUtil;
@@ -62,7 +63,8 @@ public class MemberController {
 	
 	// 회원정보 수정
 	@PutMapping("/update")
-	public ResponseEntity<ResponseData> updateMember(@RequestBody @Valid MemberDTO member) {
+	public ResponseEntity<ResponseData> updateMember(@RequestBody @Valid MemberUpdateDTO member) {
+		 log.info("member :{}",member);
 		 memberService.updateMember(member);
 		 return ResponseEntity.ok(responseUtil.getResponseData("회원정보 수정이 완료되었습니다.", "201"));
 	}

@@ -31,7 +31,7 @@ public class SecurityConfig {
             .addFilterAfter(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
             // 라우트 허용/차단 // 사용자 권한 별 접근도 설정 가능
             .authorizeExchange(ex -> ex
-
+            	.pathMatchers(HttpMethod.OPTIONS).permitAll()
                 .pathMatchers("/ws/**").permitAll()  // ✅ 추가!
 
             	.pathMatchers("/api/auth/login", "/api/auth/refresh","/api/member/sign-up").permitAll()
@@ -43,5 +43,7 @@ public class SecurityConfig {
           .build();
                   
     }
+    
+    
 
 }

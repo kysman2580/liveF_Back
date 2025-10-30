@@ -16,7 +16,7 @@ import lombok.ToString;
 @ToString
 public class MemberDTO {
 	
-	private String memberNo;
+	private Long memberNo;
     @NotBlank(message = "아이디는 필수 입력값입니다.")
     @Pattern(
         regexp = "^(?=[a-z]*[a-z0-9])[a-z0-9]{4,20}$",
