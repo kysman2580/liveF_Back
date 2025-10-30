@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,24 +32,36 @@ public class HeaderAuthFilter extends OncePerRequestFilter{
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException{
     	String username = request.getHeader("X-Username");
         String role     = request.getHeader("X-User-Role");
+        log.info("role : {}",role);
+        log.info("username : {}",username);
         
         // 헤더가 없으면 익명으로 통과
         if (username == null || username.isBlank()) {
           filterChain.doFilter(request, response);
           return;
         }
-        List<GrantedAuthority> authorities = new ArrayList();
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        if (role != null && !role.isBlank()) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
+        } else {
+            // role이 없으면 기본 권한 부여
+            authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        }
         
         UserDetails user = User.withUsername(username)
                 .password("{noop}N/A") // 비밀번호 사용 안 함
                 .authorities(authorities)
-                .accountExpired(false).accountLocked(false)
-                .credentialsExpired(false).disabled(false)
+                .accountExpired(false)
+                .accountLocked(false)
+                .credentialsExpired(false)
+                .disabled(false)
                 .build();
         
         UsernamePasswordAuthenticationToken authentication =
             new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-
+        
+        log.info("authentication : {}",authentication);
+        
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         
