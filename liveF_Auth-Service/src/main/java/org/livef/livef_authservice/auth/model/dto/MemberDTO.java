@@ -1,5 +1,7 @@
 package org.livef.livef_authservice.auth.model.dto;
 
+import java.time.LocalDateTime;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -17,6 +19,8 @@ import lombok.ToString;
 public class MemberDTO {
 	
 	private Long memberNo;
+	private String memberName;
+	private String memberNickname;
     @NotBlank(message = "아이디는 필수 입력값입니다.")
     @Pattern(
         regexp = "^(?=[a-z]*[a-z0-9])[a-z0-9]{4,20}$",
@@ -27,10 +31,12 @@ public class MemberDTO {
     @NotBlank(message = "비밀번호는 필수 입력값입니다.")
     @Size(min = 8, max = 20, message = "비밀번호는 8자 이상 20자 이하여야 합니다.")
     @Pattern(
-        regexp = "^(?=(.*[a-z]){1,})(?=(.*[A-Z]){1,})(?=(.*\\d){1,})(?=(.*[!@#$%^&*()_+=-]){1,}).{8,20}$",
-        message = "비밀번호는 대소문자, 숫자, 특수문자 중 3가지 이상을 포함해야 합니다."
+    	regexp = "^(?=.{8,20}$)((?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*()_+=-])|(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+=-])).*$",
+    	message = "비밀번호는 (소문자+숫자+특수문자) 또는 (대문자+숫자+특수문자)를 포함해야 합니다."
     )
     private String memberPw;
+    private String memberPhone;
+    private LocalDateTime enrollDate;
     private String isActive;
-    private String MemberRole;
+    private String memberRole;
 }

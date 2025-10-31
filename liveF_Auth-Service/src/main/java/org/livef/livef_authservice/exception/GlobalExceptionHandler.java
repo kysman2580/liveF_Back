@@ -21,4 +21,39 @@ public class GlobalExceptionHandler {
 		error.put("message", e.getMessage());
 		return ResponseEntity.badRequest().body(error);
 	}
+	
+	@ExceptionHandler(KakaoParsingException.class)
+	public ResponseEntity<?> KakaoParsingError(KakaoParsingException e) {
+		Map<String, String> error = new HashMap();
+		error.put("message", e.getMessage());
+		return ResponseEntity.badRequest().body(error);
+	}
+	
+	@ExceptionHandler(FailedKakaoTokenRequestException.class)
+	public ResponseEntity<?> FailedKakaoTokenRequestError(FailedKakaoTokenRequestException e) {
+		Map<String, String> error = new HashMap();
+		error.put("message", e.getMessage());
+		return ResponseEntity.badRequest().body(error);
+	}
+	
+	@ExceptionHandler(InvalidTokenException.class)
+	public ResponseEntity<?> InvalidTokenError(InvalidTokenException e) {
+		Map<String, String> error = new HashMap();
+		error.put("message", e.getMessage());
+		return ResponseEntity.badRequest().body(error);
+	}
+	
+	@ExceptionHandler(FailedRequestInfoException.class)
+	public ResponseEntity<?> FailedRequestInfoError(FailedRequestInfoException e) {
+		Map<String, String> error = new HashMap();
+		error.put("message", e.getMessage());
+		return ResponseEntity.badRequest().body(error);
+	}
+	
+	@ExceptionHandler(FailedParsingInfoException.class)
+	public ResponseEntity<?> FailedParsingInfoError(FailedParsingInfoException e) {
+		Map<String, String> error = new HashMap();
+		error.put("message", e.getMessage());
+		return ResponseEntity.badRequest().body(error);
+	}
 }
