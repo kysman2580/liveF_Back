@@ -34,7 +34,7 @@ public class SecurityConfig {
             	.pathMatchers(HttpMethod.OPTIONS).permitAll()
                 .pathMatchers("/ws/**").permitAll()  // ✅ 추가!
 
-            	.pathMatchers("/api/auth/login", "/api/auth/refresh","/api/member/sign-up").permitAll()
+            	.pathMatchers("/api/auth/login", "/api/auth/refresh","/api/member/sign-up", "/api/auth/kakao/**").permitAll()
                 .pathMatchers(HttpMethod.PUT,   "/api/**").authenticated()
                 .pathMatchers(HttpMethod.PATCH, "/api/**").authenticated()
                 .pathMatchers(HttpMethod.DELETE,"/api/**").authenticated()

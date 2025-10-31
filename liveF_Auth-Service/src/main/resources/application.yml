@@ -13,3 +13,10 @@ spring:
     import: optional:configserver:http://admin:1234@localhost:9000
 jwt:
   secret: DYB7u9huTcS72Ti8HpLCxavcoO3Ca4LEvhhzrdxAmzoXwiChA4YVuFp58gs+TPvixqqat7jWuR/sRekiRn48xw==
+
+oauth2:
+  kakao:
+    base-url: https://kauth.kakao.com/oauth/authorize
+    client-id: a22f21c9bf9938f2cca8bb10c3810bad
+    client-secret: PRmxqYdstGTbKtnaYFQtMjLylrToMx5X
+    redirect-uri: http://localhost:8080/api/auth/kakao/callback

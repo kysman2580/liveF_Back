@@ -30,8 +30,10 @@ public class UserDetailsServiceImpl implements UserDetailsService{
 	    System.out.println("[UserDetailsServiceImpl] 입력된 username: [" + username + "]");
 
 	    // 1. 일반 회원 조회
-        MemberEntity member = memberRepository.findByMemberId(username)
-                .orElseThrow(() -> new UsernameNotFoundException("No such user: " + username));
+        MemberEntity member = memberRepository.findByMemberId(username);
+        if(member == null) {
+        	throw new UsernameNotFoundException("No such user: " + username);
+        }
         log.info("[UserDetailsServiceImpl] 일반 회원 조회 결과: {}", member);
 
 	        return CustomUserDetails.builder()

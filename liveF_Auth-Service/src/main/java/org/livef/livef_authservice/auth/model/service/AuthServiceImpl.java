@@ -101,7 +101,7 @@ public class AuthServiceImpl implements AuthService{
 	@Override
 	public Map<String, Object> getMemberInfo(String refreshToken) {
 		String username = getUsernameByToken(refreshToken);
-		Optional<MemberEntity> memberInfo = memberRepository.findByMemberId(username);
+		MemberEntity memberInfo = memberRepository.findByMemberId(username);
 		Map<String, Object> loginResponse = new HashMap<>();
 		loginResponse.put("memberInfo",  memberInfo);
 		
