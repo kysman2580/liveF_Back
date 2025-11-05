@@ -27,36 +27,38 @@ public class TokenUtil {
 		byte[] keyArr = Base64.getDecoder().decode(secretKey);
 		this.key = Keys.hmacShaKeyFor(keyArr);
 	}
-	
-	public String getAccessToken(Long memberNo, String username) {
-	    log.info("토큰 생성 - 사용자명: {}", username);
+
+	public String getAccessToken(Long memberNo, String username, String role) { // ★ role 파라미터 추가
+		log.info("토큰 생성 - 사용자명: {}, 역할: {}", username, role); // 로그 수정
 
 		return Jwts.builder()
-				   .subject(username)
-				   .claim("memberNo", memberNo)
-				   .issuedAt(new Date())
-				   .expiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24))
-				   .signWith(key)
-				   .compact();
+				.subject(username)
+				.claim("memberNo", memberNo)
+				.claim("role", role) // ★★★ role 클레임 추가 ★★★
+				.issuedAt(new Date())
+				.expiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24))
+				.signWith(key)
+				.compact();
 	}
 
-	public String getRefreshToken(Long memberNo, String username) {
+	public String getRefreshToken(Long memberNo, String username, String role) { // ★ role 파라미터 추가
 		return Jwts.builder()
-				   .subject(username)
-				   .claim("memberNo", memberNo)
-				   .issuedAt(new Date())
-				   .expiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 3))
-				   .signWith(key)
-				   .compact();
+				.subject(username)
+				.claim("memberNo", memberNo)
+				.claim("role", role) // ★★★ role 클레임 추가 ★★★
+				.issuedAt(new Date())
+				.expiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 3))
+				.signWith(key)
+				.compact();
 	}
-	
+
 	public Claims parseJwt(String token) { // JWT 검증 및 페이로드 추출
-		
+
 		return Jwts.parser()
-				   .verifyWith(key)
-				   .build()
-				   .parseSignedClaims(token)
-				   .getPayload();
+				.verifyWith(key)
+				.build()
+				.parseSignedClaims(token)
+				.getPayload();
 	}
-	
+
 }
