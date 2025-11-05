@@ -95,6 +95,7 @@ public class JwtGlobalFilter implements GlobalFilter, Ordered {
 
         String token = null;
         var cookies = exchange.getRequest().getCookies().get("ACCESS_TOKEN");
+
         if (cookies != null && !cookies.isEmpty()) {
             HttpCookie cookie = cookies.get(0);
             token = cookie.getValue();

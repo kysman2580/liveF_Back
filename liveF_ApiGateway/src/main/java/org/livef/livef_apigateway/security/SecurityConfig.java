@@ -26,26 +26,27 @@ public class SecurityConfig {
         log.info("{}","잘들어왔나요?/");
 
         return httpSecurity
-                .cors(cors -> cors.disable())
-                .csrf(csrf -> csrf.disable())
-                .httpBasic(b -> b.disable())
-                .formLogin(f -> f.disable())
-                .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
-                .addFilterAfter(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
-                .authorizeExchange(ex -> ex
-                        // ⭐ /ws/info를 맨 위에 추가
-                        .pathMatchers("/ws/info/**").permitAll()
-                        .pathMatchers("/ws/**").permitAll()
 
-                        .pathMatchers("/api/auth/login", "/api/auth/refresh", "/api/member/sign-up").permitAll()
-                        .pathMatchers(HttpMethod.PUT, "/api/**").authenticated()
-                        .pathMatchers(HttpMethod.PATCH, "/api/**").authenticated()
-                        .pathMatchers(HttpMethod.DELETE, "/api/**").authenticated()
+            .csrf(csrf -> csrf.disable())
+            .httpBasic(b -> b.disable())
+            .formLogin(f -> f.disable())
+            .securityContextRepository(NoOpServerSecurityContextRepository.getInstance()) //session STATELESS
+            .addFilterAfter(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
+            // 라우트 허용/차단 // 사용자 권한 별 접근도 설정 가능
+            .authorizeExchange(ex -> ex
+            	.pathMatchers(HttpMethod.OPTIONS).permitAll()
+                .pathMatchers("/ws/**").permitAll()  // ✅ 추가!
 
-                        .anyExchange().permitAll()
+            	.pathMatchers("/api/auth/login", "/api/auth/refresh","/api/member/sign-up", "/api/auth/kakao/**").permitAll()
+                .pathMatchers(HttpMethod.PUT,   "/api/**").authenticated()
+                .pathMatchers(HttpMethod.PATCH, "/api/**").authenticated()
+                .pathMatchers(HttpMethod.DELETE,"/api/**").authenticated()
+                .pathMatchers(HttpMethod.GET,"/api/**").authenticated()
                 )
                 .build();
 
     }
+    
+    
 
 }
