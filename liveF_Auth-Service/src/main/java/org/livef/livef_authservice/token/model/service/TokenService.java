@@ -12,7 +12,7 @@ public interface TokenService {
 	 * 4. refresh토큰 redis에서 삭제하는 메서드
 	 */
 	
-	Map<String, Object> generateToken(String memberId, Long memberNo, String role);
+	Map<String, Object> generateToken(String memberId, Long memberNo);
 	
 	Map<String, Object> checkRefreshToken(String token);
 	

@@ -32,9 +32,18 @@ public class JwtGlobalFilter implements GlobalFilter, Ordered {
 
         log.info("🛰️ [JwtGlobalFilter] {} {}", method, path);
 
-        // ⭐ WebSocket 경로 처리 (최우선)
+        if ("OPTIONS".equals(method)) {
+            log.info("✅ [OPTIONS] CORS preflight 요청 → 통과");
+            return chain.filter(exchange);
+        }
+
         if (path.startsWith("/ws")) {
             log.info("🌐 [WebSocket 경로 감지] 무조건 통과: {}", path);
+
+            if (path.contains("/info")) {
+                log.info("📍 [WebSocket Info] 토큰 검증 생략");
+                return chain.filter(exchange);
+            }
 
             // 쿠키 전체 출력 (디버깅)
             log.info("🪀 전체 쿠키 목록: {}", exchange.getRequest().getCookies());

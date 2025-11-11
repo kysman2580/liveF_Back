@@ -25,8 +25,8 @@ public class TokenServiceImpl implements TokenService {
 	private final RefreshTokenRepository refreshTokenRepository;
 
 	@Override
-	public Map<String, Object> generateToken(String memberId, Long memberNo, String role) {
-		Map<String, Object> tokens = createToken(memberNo,memberId,role);
+	public Map<String, Object> generateToken(String memberId, Long memberNo) {
+		Map<String, Object> tokens = createToken(memberNo, memberId);
 		saveToken((String) tokens.get("refreshToken"), memberNo);
 		return tokens;
 	}
@@ -35,9 +35,9 @@ public class TokenServiceImpl implements TokenService {
 		refreshTokenRepository.save(new RefreshToken(refreshToken,memberNo));
 	}
 
-	private Map<String, Object> createToken(Long memberNo, String username, String role) {
-		String accessToken = tokenUtil.getAccessToken(memberNo, username, role);
-		String refreshToken = tokenUtil.getRefreshToken(memberNo, username, role);
+	private Map<String, Object> createToken(Long memberNo, String username) {
+		String accessToken = tokenUtil.getAccessToken(memberNo, username);
+		String refreshToken = tokenUtil.getRefreshToken(memberNo, username);
 
 		Map<String, Object> tokens = new HashMap();
 		tokens.put("accessToken", accessToken);
@@ -60,7 +60,7 @@ public class TokenServiceImpl implements TokenService {
 		Claims claims = tokenUtil.parseJwt(refreshToken);
 		String role = claims.get("role", String.class);
 		String username = getUsernameByToken(refreshToken);
-		Map<String, Object> tokens =  generateToken(username, memberNo, role);
+		Map<String, Object> tokens =  generateToken(username, memberNo);
 		Map<String, Object> Response = new HashMap<>();
 		Response.put("accessCookie",  buildCookie("ACCESS_TOKEN",  (String)tokens.get("accessToken"),  15 * 60));
 		Response.put("refreshCookie", buildCookie("REFRESH_TOKEN", (String)tokens.get("refreshToken"), 7 * 24 * 60 * 60));

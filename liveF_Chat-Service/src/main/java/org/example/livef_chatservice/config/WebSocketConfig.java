@@ -25,7 +25,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
         registry.addEndpoint("/ws")
                 .addInterceptors(jwtHandshakeInterceptor)
-                .withSockJS();
+                .setAllowedOriginPatterns("*")
+                .withSockJS()
+                .setSessionCookieNeeded(true); // 이 줄이 핵심!;
+
 
         System.out.println("✅ /ws 엔드포인트 등록 완료 (SockJS 활성화, CORS 설정 추가)");
         System.out.println("=".repeat(80));

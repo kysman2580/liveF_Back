@@ -28,26 +28,23 @@ public class TokenUtil {
 		this.key = Keys.hmacShaKeyFor(keyArr);
 	}
 
-	public String getAccessToken(Long memberNo, String username, String role) { // ★ role 파라미터 추가
-		log.info("토큰 생성 - 사용자명: {}, 역할: {}", username, role); // 로그 수정
+	public String getAccessToken(Long memberNo, String username) { // ★ role 파라미터 추가
 
 		return Jwts.builder()
 
 				   .subject(username)
 				   .claim("memberNo", memberNo)
-				   .claim("role", "USER")
 				   .issuedAt(new Date())
 				   .expiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24))
 				   .signWith(key)
 				   .compact();
 	}
 
-	public String getRefreshToken(Long memberNo, String username, String role) { // ★ role 파라미터 추가
+	public String getRefreshToken(Long memberNo, String username) { // ★ role 파라미터 추가
 		return Jwts.builder()
 
 				   .subject(username)
 				   .claim("memberNo", memberNo)
-				   .claim("role", "USER")
 				   .issuedAt(new Date())
 				   .expiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 3))
 				   .signWith(key)

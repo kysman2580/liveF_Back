@@ -61,7 +61,7 @@ public class AuthServiceImpl implements AuthService{
 				.map(authority -> authority.startsWith("ROLE_") ? authority.substring("ROLE_".length()) : authority)
 				.orElse("GUEST");
 
-		Map<String, Object> token = tokenService.generateToken(user.getUsername(), user.getMemberNo(), roleName);
+		Map<String, Object> token = tokenService.generateToken(user.getUsername(), user.getMemberNo());
 		Map<String, Object> loginResponse = new HashMap<>();
 		loginResponse.put("memberId", user.getUsername());
 		loginResponse.put("memberNo", user.getMemberNo());

@@ -1,8 +1,7 @@
+// StompChannelInterceptor.java (수정본 - 연결 안정화)
 package org.example.livef_chatservice.security;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.messaging.Message;
@@ -12,80 +11,124 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
-/**
- * STOMP 프레임 인터셉터
- * - CONNECT 프레임에서 WebSocket 세션의 인증 정보를 Principal로 설정
- * - 이후 모든 STOMP 프레임(SEND, SUBSCRIBE 등)에서 이 Principal 사용
- */
 @Slf4j
-@Configuration
-@RequiredArgsConstructor
-@Order(Ordered.HIGHEST_PRECEDENCE + 99) // Spring Security 인터셉터보다 먼저 실행
+@Component
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class StompChannelInterceptor implements ChannelInterceptor {
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
-        StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+        StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(
+                message, StompHeaderAccessor.class
+        );
 
-        if (accessor == null) {
+        // Accessor가 null이거나 Command가 null인 경우 (Heartbeat, Polling)
+        if (accessor == null || accessor.getCommand() == null) {
+            log.trace("Skip: accessor or command is null (heartbeat or polling)");
             return message;
         }
 
-        log.info("📨 STOMP Command: {}", accessor.getCommand());
+        StompCommand command = accessor.getCommand();
+        String sessionId = accessor.getSessionId();
 
-        // CONNECT 프레임에서만 인증 처리
-        if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-            log.info("🔐 STOMP CONNECT 프레임 인증 처리 시작");
+        log.info("📨 [STOMP] Command: {}, SessionId: {}", command, sessionId);
 
-            // WebSocket 세션 속성에서 인증 정보 가져오기 (JwtHandshakeInterceptor에서 설정한 값)
-            String username = (String) accessor.getSessionAttributes().get("username");
-            String role = (String) accessor.getSessionAttributes().get("role");
+        try {
+            switch (command) {
+                case CONNECT:
+                    handleConnect(accessor);
+                    break;
 
-            log.info("👤 Session에서 가져온 정보 - username: {}, role: {}", username, role);
+                case SUBSCRIBE:
+                case SEND:
+                case MESSAGE:
+                    restoreAuthentication(accessor);
+                    break;
 
-            if (username != null && !username.isBlank()) {
-                // 권한 설정
-                List<GrantedAuthority> authorities = new ArrayList<>();
-                String finalRole = (role != null && !role.isBlank()) ? role : "USER";
-                authorities.add(new SimpleGrantedAuthority("ROLE_" + finalRole.toUpperCase()));
+                case DISCONNECT:
+                    log.info("🔌 DISCONNECT: {}", accessor.getUser() != null ?
+                            accessor.getUser().getName() : "unknown");
+                    break;
 
-                // UserDetails 생성
-                UserDetails userDetails = User.withUsername(username)
-                        .password("{noop}N/A")
-                        .authorities(authorities)
-                        .accountExpired(false)
-                        .accountLocked(false)
-                        .credentialsExpired(false)
-                        .disabled(false)
-                        .build();
+                default:
+                    // 다른 명령어는 그냥 통과
+                    break;
+            }
+        } catch (Exception e) {
+            log.error("❌ STOMP 인터셉터 에러 - Command: {}, Error: {}",
+                    command, e.getMessage(), e);
+            // 예외를 던지지 않고 로깅만 (연결 유지)
+            // 필요시 특정 상황에서만 예외 throw
+        }
 
-                // Authentication 객체 생성
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
-                        );
+        return message;
+    }
 
-                // ⭐️ 핵심: STOMP Principal 설정
-                accessor.setUser(authentication);
+    /**
+     * CONNECT 명령 처리
+     */
+    private void handleConnect(StompHeaderAccessor accessor) {
+        String username = accessor.getFirstNativeHeader("X-Username");
+        String userNo = accessor.getFirstNativeHeader("X-User-No");
 
-                log.info("✅ STOMP Principal 설정 완료: username={}, authorities={}",
-                        username, authorities);
-            } else {
-                log.warn("⚠️ STOMP CONNECT: 인증 정보 없음 (username이 null)");
+        log.info("🔑 CONNECT 시도 - X-Username: {}, X-User-No: {}", username, userNo);
+        log.debug("All Headers: {}", accessor.toNativeHeaderMap());
+
+        if (username == null || username.isBlank()) {
+            log.warn("⚠️ X-Username 헤더 없음 - 익명 사용자로 처리");
+            username = "Anonymous_" + System.currentTimeMillis();
+        }
+
+        // 인증 객체 생성
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                username,
+                null,
+                List.of(new SimpleGrantedAuthority("ROLE_USER"))
+        );
+
+        // 세션에 저장 (중요!)
+        accessor.setUser(auth);
+        if (accessor.getSessionAttributes() != null) {
+            accessor.getSessionAttributes().put("PRINCIPAL", auth);
+            accessor.getSessionAttributes().put("USERNAME", username);
+        }
+
+        // SecurityContext 설정
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        log.info("✅ CONNECT 성공: {}, SessionId: {}", username, accessor.getSessionId());
+    }
+
+    /**
+     * 다른 명령에서 인증 정보 복구
+     */
+    private void restoreAuthentication(StompHeaderAccessor accessor) {
+        // 이미 User가 설정되어 있으면 스킵
+        if (accessor.getUser() != null) {
+            log.trace("User already set: {}", accessor.getUser().getName());
+            return;
+        }
+
+        // 세션에서 복구 시도
+        if (accessor.getSessionAttributes() != null) {
+            Object principalObj = accessor.getSessionAttributes().get("PRINCIPAL");
+
+            if (principalObj instanceof UsernamePasswordAuthenticationToken auth) {
+                accessor.setUser(auth);
+                SecurityContextHolder.getContext().setAuthentication(auth);
+                log.debug("🔄 Principal 복구: {}", auth.getName());
+                return;
             }
         }
 
-        // 다른 프레임(SEND, SUBSCRIBE 등)은 이미 설정된 Principal 사용
-        return message;
+        // 복구 실패 시 경고만 출력 (예외 던지지 않음)
+        log.warn("⚠️ 인증 정보 없음 - Command: {}, SessionId: {}",
+                accessor.getCommand(), accessor.getSessionId());
     }
 }

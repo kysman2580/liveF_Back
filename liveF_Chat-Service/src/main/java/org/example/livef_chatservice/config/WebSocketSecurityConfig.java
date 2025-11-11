@@ -2,38 +2,39 @@ package org.example.livef_chatservice.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.Message;
-import org.springframework.security.authorization.AuthorizationManager;
-import org.springframework.security.config.annotation.web.socket.EnableWebSocketSecurity;
-import org.springframework.security.messaging.access.intercept.MessageMatcherDelegatingAuthorizationManager;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.core.annotation.Order;
 
-import static org.springframework.messaging.simp.SimpMessageType.CONNECT;
-import static org.springframework.messaging.simp.SimpMessageType.DISCONNECT;
-import static org.springframework.messaging.simp.SimpMessageType.UNSUBSCRIBE;
-import static org.springframework.messaging.simp.SimpMessageType.SUBSCRIBE;
-
+/**
+ * 🔥 핵심 변경: @EnableWebSocketSecurity 제거!
+ * 이 어노테이션이 자동으로 XorCsrfChannelInterceptor를 등록하여 CSRF 검증을 강제합니다.
+ * WebSocket은 자체 인터셉터(StompChannelInterceptor)로 인증을 처리하므로 불필요합니다.
+ */
 @Configuration
-@EnableWebSocketSecurity
+@EnableWebSecurity
 public class WebSocketSecurityConfig {
 
+    /**
+     * HTTP 레벨 보안 설정
+     * WebSocket 핸드셰이크 경로에 대한 보안을 설정합니다
+     */
     @Bean
-    public AuthorizationManager<Message<?>> messageAuthorizationManager(
-            MessageMatcherDelegatingAuthorizationManager.Builder builder) {
+    @Order(1)
+    public SecurityFilterChain webSocketSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                // WebSocket 경로만 처리
+                .securityMatcher("/ws/**")
 
-        return builder
-                // ⭐ 핵심 수정: CONNECT, DISCONNECT, UNSUBSCRIBE는 Handshake 및 연결 관리 목적으로 permitAll() 허용
-                // JwtHandshakeInterceptor가 인증 정보를 세션에 넣을 시간을 줍니다.
-                .simpTypeMatchers(CONNECT, DISCONNECT, UNSUBSCRIBE).permitAll()
+                // CSRF 완전 비활성화
+                .csrf(csrf -> csrf.disable())
 
-                // SUBSCRIBE 메시지는 인증된 사용자만 허용
-                .simpTypeMatchers(SUBSCRIBE).authenticated()
+                // 모든 WebSocket 요청 허용
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll()
+                );
 
-                // /app으로 전송되는 메시지 (실제 채팅 메시지)는 인증된 사용자만 허용
-                .simpDestMatchers("/app/**").authenticated()
-                .simpDestMatchers("/topic/**").authenticated()
-
-                // 그 외 모든 메시지는 인증된 사용자에게만 허용
-                .anyMessage().authenticated()
-                .build();
+        return http.build();
     }
 }

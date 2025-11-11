@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -19,38 +20,27 @@ public class SecurityConfig {
 
     private final HeaderAuthFilter headerAuthFilter;
 
+    /**
+     * HTTP API용 보안 필터 체인 (WebSocket 경로 제외)
+     */
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        log.info("🔐 SecurityFilterChain 설정 시작");
-
+    @Order(2)
+    public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
+                // WebSocket 경로는 제외
+                .securityMatcher(request -> !request.getRequestURI().startsWith("/ws"))
+
                 .cors(AbstractHttpConfigurer::disable)
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                );
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-        log.info("⚙️ HTTP 요청 권한 설정 중...");
+                .addFilterBefore(headerAuthFilter, UsernamePasswordAuthenticationFilter.class)
 
-        http
-                .authorizeHttpRequests(authorize -> authorize
-                        // ⭐ /ws/info는 SockJS 메타데이터이므로 인증 불필요
-                        .requestMatchers("/ws/info/**").permitAll()
-                        .requestMatchers("/ws/**").permitAll()
-                        .requestMatchers("/ws").permitAll()
-                        .requestMatchers("/app/**").permitAll()
-                        .requestMatchers("/topic/**").permitAll()
-
-                        // API 경로는 인증 필요
-                        .requestMatchers("/api/chat/**").authenticated()
-
-                        // 그 외 모든 요청 허용
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/chat/**").authenticated()
                         .anyRequest().permitAll()
                 );
 
-        http.addFilterBefore(headerAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
-        log.info("✅ SecurityFilterChain 설정 완료");
         return http.build();
     }
 }
