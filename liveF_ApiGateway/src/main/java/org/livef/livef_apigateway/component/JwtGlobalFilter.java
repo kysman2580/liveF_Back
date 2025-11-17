@@ -2,6 +2,7 @@ package org.livef.livef_apigateway.component;
 
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -16,6 +17,7 @@ import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+import jakarta.annotation.PostConstruct; // PostConstruct 임포트
 
 @RequiredArgsConstructor
 @Slf4j
@@ -23,6 +25,15 @@ import reactor.core.publisher.Mono;
 public class JwtGlobalFilter implements GlobalFilter, Ordered {
 
     private final JwtUtil util;
+
+    @Value("${app.security.internal-secret-key}")
+    private String gatewayInternalSecret;
+    private static final String INTERNAL_SECRET_HEADER = "X-Internal-Secret";
+
+    @PostConstruct
+    public void logLoadedSecret() {
+        log.error("🔑 [GATEWAY] Loaded Secret Key (SENT): [{}]", gatewayInternalSecret);
+    }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -80,6 +91,7 @@ public class JwtGlobalFilter implements GlobalFilter, Ordered {
                                     .header("X-Username", username)
                                     .header("X-User-No", String.valueOf(memberNo))
                                     .header("X-User-Role", role)
+                                    .header(INTERNAL_SECRET_HEADER, gatewayInternalSecret)
                                     .build())
                             .build();
 
