@@ -21,4 +21,11 @@ public class GlobalExceptionHandler {
 		error.put("message", e.getMessage());
 		return ResponseEntity.badRequest().body(error);
 	}
+	
+	@ExceptionHandler(NonExistMemberIdException.class)
+	public ResponseEntity<?> NonExistMemberIdError(NonExistMemberIdException e) {
+		Map<String, String> error = new HashMap();
+		error.put("message", e.getMessage());
+		return ResponseEntity.badRequest().body(error);
+	}
 }

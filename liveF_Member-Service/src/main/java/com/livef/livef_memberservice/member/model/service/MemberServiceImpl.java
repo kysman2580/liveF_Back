@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.livef.livef_memberservice.exception.DuplicateMemberIdException;
+import com.livef.livef_memberservice.exception.NonExistMemberIdException;
 import com.livef.livef_memberservice.member.model.dto.MemberDTO;
 import com.livef.livef_memberservice.member.model.dto.MemberUpdateDTO;
 import com.livef.livef_memberservice.member.model.entity.MemberEntity;
@@ -84,6 +85,23 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public void deleteMember(Long memberNo) {
 		memberRepository.deleteById(memberNo);
+	}
+
+	@Override
+	public void selectCheckId(String memberId) {
+		boolean checkId = memberRepository.existsByMemberId(memberId);
+		if(!checkId) {
+			throw new NonExistMemberIdException("아이디가 존재하지 않습니다.");
+		}
+	}
+
+	@Override
+	public void changePassword(String memberId, String memberPw) {
+		 MemberEntity member = memberRepository.findByMemberId(memberId)
+			        .orElseThrow(() -> new NonExistMemberIdException("존재하지 않는 아이디입니다."));
+
+	    member.setMemberPw(passwordEncoder.encode(memberPw));
+	    memberRepository.save(member);
 	}
 	
 

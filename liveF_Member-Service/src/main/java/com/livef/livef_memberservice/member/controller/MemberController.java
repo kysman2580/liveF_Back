@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.livef.livef_memberservice.member.model.dto.MemberDTO;
@@ -57,9 +58,19 @@ public class MemberController {
 		return ResponseEntity.ok(responseUtil.getResponseData("회원 전체 조회되었습니다.", "200"));
 	}
 	
-//	// 아이디 or 닉네임 중복 체크
-//	@GetMapping("/check")
-//	public ResponseEntity<?> selectCheck( );
+	// 아이디 체크
+	@GetMapping("/check-id")
+	public ResponseEntity<?> selectCheckId(@RequestParam("memberId") String memberId) {
+		memberService.selectCheckId(memberId);
+		return ResponseEntity.ok(responseUtil.getResponseData("존재하는 아이디 입니다.", "200"));
+	}
+	
+	// 비밀번호 변경
+	@PostMapping("/change-password")
+	public ResponseEntity<?> changePassword(@RequestBody @Valid MemberDTO member) {
+	    memberService.changePassword(member.getMemberId(), member.getMemberPw());
+		return ResponseEntity.ok(responseUtil.getResponseData("비밀번호가 변경되었습니다.", "200"));
+	}
 	
 	// 회원정보 수정
 	@PutMapping("/update")
