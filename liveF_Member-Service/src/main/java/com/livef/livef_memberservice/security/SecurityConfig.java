@@ -29,7 +29,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> {
-                	requests.requestMatchers(HttpMethod.POST, "/api/member/sign-up").permitAll();
+                	requests.requestMatchers(HttpMethod.POST, "/api/member/sign-up","/api/member/change-password").permitAll();
+                	requests.requestMatchers(HttpMethod.GET,"/api/member/check-id").permitAll();
                     requests.requestMatchers(HttpMethod.DELETE).authenticated();
                     requests.requestMatchers(HttpMethod.PUT).authenticated();
                     requests.requestMatchers(HttpMethod.PATCH).authenticated();

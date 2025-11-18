@@ -51,7 +51,9 @@ public class SecurityConfig {
                                       "/api/auth/refresh",
                                       "/api/member/sign-up",
                                       "/api/auth/kakao/**",
-                                      "/api/v1/**").permitAll()
+                                      "/api/v1/**",
+                                      "/api/member/check-id",
+                                      "/api/member/change-password").permitAll()
                         .pathMatchers(HttpMethod.PUT,    "/api/**").authenticated()
                         .pathMatchers(HttpMethod.PATCH,  "/api/**").authenticated()
                         .pathMatchers(HttpMethod.DELETE, "/api/**").authenticated()

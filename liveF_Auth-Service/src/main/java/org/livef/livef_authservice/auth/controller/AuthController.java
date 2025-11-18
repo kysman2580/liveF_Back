@@ -51,16 +51,27 @@ public class AuthController {
 	@PostMapping("/refresh")
 	public ResponseEntity<?> refresh(HttpServletRequest request, HttpServletResponse response){
 		log.info("Cookies: {}", Arrays.toString(request.getCookies()));
-		 String refreshToken = null;
-		    if (request.getCookies() != null) {
-		        for (Cookie cookie : request.getCookies()) {
-		        	log.info("Cookie name={}, value={}", cookie.getName(), cookie.getValue());
-		            if ("REFRESH_TOKEN".equals(cookie.getName())) {
-		                refreshToken = cookie.getValue();
-		                break;
-		            }
-		        }
-		    }
+		String refreshToken = null;
+	    if (request.getCookies() == null) {
+	    	return ResponseEntity
+	    			.status(HttpStatus.UNAUTHORIZED)
+		            .body(responseUtil.getResponseData("리프레시 토큰이 존재하지 않습니다.", "401"));
+	    }
+	    else {
+	        for (Cookie cookie : request.getCookies()) {
+	        	log.info("Cookie name={}, value={}", cookie.getName(), cookie.getValue());
+	            if ("REFRESH_TOKEN".equals(cookie.getName())) {
+	                refreshToken = cookie.getValue();
+	                break;
+	            }
+	        }
+	    }
+	    if (refreshToken == null || refreshToken.isBlank()) {
+	        log.warn("REFRESH_TOKEN cookie not found.");
+	        return ResponseEntity
+	                .status(HttpStatus.UNAUTHORIZED)
+	                .body(responseUtil.getResponseData("리프레시 토큰이 존재하지 않습니다.", "401"));
+	    }
 		Map<String, Object> newToken = tokenService.checkRefreshToken(refreshToken);
 		ResponseCookie access  = (ResponseCookie) newToken.get("accessCookie");
 	    ResponseCookie refresh = (ResponseCookie) newToken.get("refreshCookie");

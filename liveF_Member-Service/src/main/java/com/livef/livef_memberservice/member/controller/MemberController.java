@@ -61,8 +61,9 @@ public class MemberController {
 	// 아이디 체크
 	@GetMapping("/check-id")
 	public ResponseEntity<?> selectCheckId(@RequestParam("memberId") String memberId) {
+		log.info("memberId : {}",memberId);
 		memberService.selectCheckId(memberId);
-		return ResponseEntity.ok(responseUtil.getResponseData("존재하는 아이디 입니다.", "200"));
+		return ResponseEntity.ok(responseUtil.getResponseData("아이디가 확인되었습니다.", "200"));
 	}
 	
 	// 비밀번호 변경
