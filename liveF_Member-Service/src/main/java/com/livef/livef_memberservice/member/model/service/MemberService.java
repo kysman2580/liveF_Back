@@ -25,4 +25,9 @@ public interface MemberService {
 	// 회원 탈퇴
 	void deleteMember(Long memberNo);
 
+	// 아이디 체크
+	void selectCheckId(String memberId);
+
+	void changePassword(String memberId, String memberPw);
+
 }

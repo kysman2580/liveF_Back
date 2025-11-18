@@ -24,7 +24,7 @@ public class TodayFixtureController {
 
     @GetMapping
     public Mono<ResponseEntity<List<TodayFixtureDetail>>> getTodayFixturesByLeague(
-            @RequestParam int leagueId) {
+    		@RequestParam("leagueId") int leagueId) {
         return service.getThreeDayFixturesByLeague(leagueId)
                 .collectList()
                 .map(list -> ResponseEntity.ok(list))

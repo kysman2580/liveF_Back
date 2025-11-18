@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> {
-                    requests.requestMatchers("/api/auth/login", "/api/auth/kakao/**").permitAll();
+                    requests.requestMatchers("/api/auth/login",  "/api/auth/refresh","/api/auth/kakao/**").permitAll();
                     requests.requestMatchers("/api/auth/logout").authenticated();
                     requests.requestMatchers(HttpMethod.DELETE).authenticated();
                     requests.requestMatchers(HttpMethod.PUT).authenticated();
