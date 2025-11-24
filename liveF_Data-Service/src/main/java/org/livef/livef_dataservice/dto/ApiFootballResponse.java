@@ -14,7 +14,7 @@ import java.util.Map;
 public class ApiFootballResponse {
     private String get; // 호출된 엔드포인트 이름 (예: "fixtures")
     private int results; // 반환된 결과 개수
-    private Map<String, Object> errors;
+    private Object errors;
     private Map<String, String> parameters; // { "date": "2025-10-18" }
     private Paging paging; // { "current": 1, "total": 1 }
 
