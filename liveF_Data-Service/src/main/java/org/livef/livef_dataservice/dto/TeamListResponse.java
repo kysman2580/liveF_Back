@@ -15,7 +15,7 @@ public class TeamListResponse {
     private int results;
 
     // JSON 디코딩 오류 해결 (Map으로 유연하게 대응)
-    private Map<String, Object> errors;
+    private Object errors;
 
     private Map<String, String> parameters;
     private Paging paging; // (Paging DTO는 별도로 정의되어야 함)
