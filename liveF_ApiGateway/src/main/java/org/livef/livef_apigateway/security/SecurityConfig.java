@@ -58,7 +58,7 @@ public class SecurityConfig {
                         .pathMatchers(HttpMethod.PATCH,  "/api/**").authenticated()
                         .pathMatchers(HttpMethod.DELETE, "/api/**").authenticated()
                         .pathMatchers(HttpMethod.GET,    "/api/**").authenticated()
-                        .anyExchange().authenticated()  // ✅ anyRequest() 아님!
+                        .anyExchange().authenticated() 
                 )
                 .build();
     }
