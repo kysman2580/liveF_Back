@@ -25,7 +25,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
         registry.addEndpoint("/ws")
                 .addInterceptors(jwtHandshakeInterceptor)
-                .setAllowedOriginPatterns("*")
+                .setAllowedOriginPatterns("https://livef.store", "http://livef.store")
                 .withSockJS()
                 .setSessionCookieNeeded(true); // 이 줄이 핵심!;
 
