@@ -29,9 +29,13 @@ public class SecurityConfig {
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
 
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/ws/**", "/app/**", "/topic/**").permitAll()
-                        .pathMatchers(HttpMethod.POST, "/api/test", "/api/member/mypage-info",
-                                "/api/auth/password-confirm", "/api/reviews").authenticated()
+                        .pathMatchers("/ws/**",
+                                      "/app/**",
+                                      "/topic/**").permitAll()
+                        .pathMatchers(HttpMethod.POST,  "/api/test",
+                                                        "/api/member/mypage-info",
+                                                        "/api/auth/password-confirm",
+                                                        "/api/reviews").authenticated()
                         .pathMatchers(HttpMethod.DELETE).authenticated()
                         .pathMatchers(HttpMethod.PUT).authenticated()
                         .pathMatchers(HttpMethod.PATCH).authenticated()

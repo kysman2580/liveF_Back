@@ -44,21 +44,30 @@ public class SecurityConfig {
                 // 경로별 인증 설정
                 .authorizeExchange(authorize -> authorize
                         .pathMatchers(HttpMethod.OPTIONS).permitAll()
-                        .pathMatchers("/ws/**").permitAll()
-                        .pathMatchers("/ws/info/**").permitAll()
-                        .pathMatchers("/ws", "/ws/").permitAll()
+
+                        .pathMatchers("/ws/**", "/ws/info/**", "/ws", "/ws/").permitAll()
+
+                        // 로그인/회원가입/카카오 등 인증 필요 없는 요청
                         .pathMatchers("/api/auth/login",
-                                      "/api/auth/refresh",
-                                      "/api/member/sign-up",
-                                      "/api/auth/kakao/**",
-                                      "/api/v1/**",
-                                      "/api/member/check-id",
-                                      "/api/member/change-password").permitAll()
-                        .pathMatchers(HttpMethod.PUT,    "/api/**").authenticated()
-                        .pathMatchers(HttpMethod.PATCH,  "/api/**").authenticated()
+                                "/api/auth/refresh",
+                                "/api/member/sign-up",
+                                "/api/auth/kakao/**",
+                                "/api/member/check-id",
+                                "/api/member/change-password").permitAll()
+
+                        // 🔥 공개 API 명확하게 지정
+                        .pathMatchers("/api/v1/feed/**").permitAll()
+
+                        // 🔥 만약 다른 V1 API도 공개라면
+                        // .pathMatchers("/api/v1/**").permitAll()
+
+                        // 나머지 모든 /api/** 는 인증 필요
+                        .pathMatchers(HttpMethod.GET, "/api/**").authenticated()
+                        .pathMatchers(HttpMethod.PUT, "/api/**").authenticated()
+                        .pathMatchers(HttpMethod.PATCH, "/api/**").authenticated()
                         .pathMatchers(HttpMethod.DELETE, "/api/**").authenticated()
-                        .pathMatchers(HttpMethod.GET,    "/api/**").authenticated()
-                        .anyExchange().authenticated()  // ✅ anyRequest() 아님!
+
+                        .anyExchange().authenticated()
                 )
                 .build();
     }

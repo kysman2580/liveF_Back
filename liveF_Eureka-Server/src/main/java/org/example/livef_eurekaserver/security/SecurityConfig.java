@@ -28,7 +28,9 @@ public class SecurityConfig {
         http
                 .csrf((auth) -> auth.disable());
         http
-                .authorizeHttpRequests((auth) -> auth.anyRequest().authenticated());
+                .authorizeHttpRequests((auth) -> auth
+                        .requestMatchers("/eureka/**").permitAll() // 유레카 클라이언트의 등록/갱신 경로 허용
+                        .anyRequest().authenticated()); // 그 외 나머지 요청은 인증 요구
         http
                 .httpBasic(Customizer.withDefaults());
 
