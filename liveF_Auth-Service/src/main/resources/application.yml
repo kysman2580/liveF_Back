@@ -1,4 +1,12 @@
 spring:
+  data:
+    redis:
+      host: master.livef-cluster.wvgtmq.apn2.cache.amazonaws.com:6379
+      port: 6379
+      password: 1234
+      ssl:
+        enabled: true
+
   application:
     name: auth
   profiles:
