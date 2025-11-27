@@ -89,13 +89,12 @@ public class AuthServiceImpl implements AuthService{
 		return null;
 	}
 
-	// ⭐⭐⭐ 핵심 수정: domain 추가!
 	private ResponseCookie buildCookie(String name, String token, int maxAgeSeconds) {
 		ResponseCookie cookie = ResponseCookie.from(name, token)
 				.path("/")
-				.domain("localhost")      // ⭐ 이게 핵심! localhost의 모든 포트에서 공유
+				.domain("livef.store")    
 				.maxAge(maxAgeSeconds)
-				.httpOnly(true)           // ⭐ 보안 유지
+				.httpOnly(true)           // 보안 유지
 				.secure(false)            // 로컬 개발 환경
 				.sameSite("Lax")          // CSRF 보호
 				.build();
