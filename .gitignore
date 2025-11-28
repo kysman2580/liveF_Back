@@ -4,6 +4,7 @@
 liveF_Config-Server/src/main/resources/application.yml
 liveF_Auth-Service/src/main/resources/application.yml
 liveF_ApiGateway/src/main/resources/application.yml
+
 liveF_Community-Service/src/main/resources/application.yml
 liveF_Data-Service/src/main/resources/application.yml
 liveF_Member-Service/src/main/resources/application.yml
