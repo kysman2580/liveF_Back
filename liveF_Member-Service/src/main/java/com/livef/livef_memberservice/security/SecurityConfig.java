@@ -49,7 +49,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // 🔥 member-service도 CORS 설정 필요
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
