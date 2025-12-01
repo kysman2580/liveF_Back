@@ -180,6 +180,7 @@ public class KakaoServiceImpl implements KakaoService {
 	private ResponseCookie buildCookie(String name, String token, int maxAgeSeconds) {
 	    return ResponseCookie.from(name, token)
 	        .path("/")
+	        .domain("livef.store")
 	        .maxAge(maxAgeSeconds)
 	        .httpOnly(true)
 	        .secure(true)
