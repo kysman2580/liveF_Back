@@ -71,7 +71,7 @@ public class TokenServiceImpl implements TokenService {
 	private ResponseCookie buildCookie(String name, String token, int maxAgeSeconds) {
 		return ResponseCookie.from(name, token)
 				.path("/")
-				.domain("localhost")      // ⭐ 이게 핵심!
+				.domain(".livef.store")      // ⭐ 이게 핵심!
 				.maxAge(maxAgeSeconds)
 				.httpOnly(true)           // ⭐ 보안 유지
 				.secure(false)

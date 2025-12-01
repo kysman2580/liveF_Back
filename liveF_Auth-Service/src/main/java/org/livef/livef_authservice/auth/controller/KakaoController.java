@@ -54,7 +54,7 @@ public class KakaoController {
             response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
             // 4️⃣ 프론트로 리다이렉트 (필요하면 사용자 정보 같이 전달)
-            String redirectUrl = "http://localhost:5173/oauth/success";
+            String redirectUrl = "https://livef.store:5173/oauth/success";
             redirectUrl += "?memberId=" + URLEncoder.encode(member.getMemberId(), "UTF-8");
 
             response.sendRedirect(redirectUrl);

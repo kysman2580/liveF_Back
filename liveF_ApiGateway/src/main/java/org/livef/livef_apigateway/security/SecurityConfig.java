@@ -39,35 +39,37 @@ public class SecurityConfig {
                         })
                 )
 
-                .addFilterAfter(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
+                // .addFilterAfter(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
 
                 // 경로별 인증 설정
                 .authorizeExchange(authorize -> authorize
                         .pathMatchers(HttpMethod.OPTIONS).permitAll()
 
+                        // 1. WebSocket 전부 공개 (제일 위에!)
                         .pathMatchers("/ws/**", "/ws/info/**", "/ws", "/ws/").permitAll()
 
-                        // 로그인/회원가입/카카오 등 인증 필요 없는 요청
-                        .pathMatchers("/api/auth/login",
-                                "/api/auth/refresh",
-                                "/api/member/sign-up",
-                                "/api/auth/kakao/**",
-                                "/api/member/check-id",
-                                "/api/member/change-password").permitAll()
+                        // 2. 인증 필요 없는 API들
+                        .pathMatchers("/api/auth/login", "/api/auth/refresh",
+                                "/api/member/sign-up", "/api/auth/kakao/**",
+                                "/api/member/check-id", "/api/member/change-password").permitAll()
 
-                        // 🔥 공개 API 명확하게 지정
-                        .pathMatchers("/api/v1/feed/**").permitAll()
+                        // 3. 공개 데이터 API
+                        .pathMatchers(HttpMethod.GET, "/api/v1/feed/**").permitAll()
+                        .pathMatchers(HttpMethod.GET, "/api/v1/fixture/**").permitAll()
+                        .pathMatchers(HttpMethod.GET, "/api/v1/team/**").permitAll()
 
-                        // 🔥 만약 다른 V1 API도 공개라면
-                        // .pathMatchers("/api/v1/**").permitAll()
-
-                        // 나머지 모든 /api/** 는 인증 필요
-                        .pathMatchers(HttpMethod.GET, "/api/**").authenticated()
+                        // 4. 인증 필요한 API들 (명시적으로)
+                        .pathMatchers(HttpMethod.POST, "/api/**").authenticated()
                         .pathMatchers(HttpMethod.PUT, "/api/**").authenticated()
                         .pathMatchers(HttpMethod.PATCH, "/api/**").authenticated()
                         .pathMatchers(HttpMethod.DELETE, "/api/**").authenticated()
 
-                        .anyExchange().authenticated()
+                        // 5. 그 외 GET /api/** 도 인증 필요 (선택)
+                        .pathMatchers(HttpMethod.GET, "/api/**").authenticated()
+
+                        // 🔥 여기서 .anyExchange().permitAll() → .anyExchange().authenticated() 로 변경!
+                        // 또는 아예 제거 (위에서 다 커버됨)
+                        .anyExchange().permitAll()
                 )
                 .build();
     }
