@@ -90,14 +90,14 @@ public class MemberController {
 						        .maxAge(0)
 						        .httpOnly(true)
 						        .secure(true)        // 로컬 http 개발이면 false
-						        .sameSite("Lax")    // 크로스도메인일 때 필요
+						        .sameSite("None")    // 크로스도메인일 때 필요
 						        .build();
 		 ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", "")
 				 .path("/")
 				 .maxAge(0)
 				 .httpOnly(true)
 				 .secure(true)        // 로컬 http 개발이면 false
-				 .sameSite("Lax")    // 크로스도메인일 때 필요
+				 .sameSite("None")    // 크로스도메인일 때 필요
 				 .build();
 		 return ResponseEntity.ok()
 		            .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
