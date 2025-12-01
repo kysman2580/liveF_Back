@@ -182,7 +182,8 @@ public class KakaoServiceImpl implements KakaoService {
 	        .path("/")
 	        .maxAge(maxAgeSeconds)
 	        .httpOnly(true)
-	        .secure(true)        // 로컬 http 개발이면 false
+	        .secure(true)
+	        .sameSite("None")// 로컬 http 개발이면 false
 	        .build();
 	}
 	
