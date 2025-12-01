@@ -96,7 +96,7 @@ public class AuthServiceImpl implements AuthService{
 				.maxAge(maxAgeSeconds)
 				.httpOnly(true)           // 보안 유지
 				.secure(true)            // 로컬 개발 환경
-				.sameSite("Lax")          // CSRF 보호
+				.sameSite("None")          // CSRF 보호
 				.build();
 
 		log.info("🍪 쿠키 생성: name={}, domain=localhost, httpOnly=true", name);
