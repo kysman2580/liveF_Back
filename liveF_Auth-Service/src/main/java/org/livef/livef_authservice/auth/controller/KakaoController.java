@@ -41,20 +41,21 @@ public class KakaoController {
     public void kakaoCallbacks(@RequestParam("code") String code, HttpServletResponse response) throws IOException {
     	log.info("카카오 인가코드: {}", code);
         try {
-            // 1️⃣ 카카오 로그인 처리 및 토큰 생성
+            //  카카오 로그인 처리 및 토큰 생성
             Map<String, Object> data = kakaoService.getKakaoAcessToken(code);
 
-            // 2️⃣ 서비스에서 반환한 쿠키 꺼내기
+            //  서비스에서 반환한 쿠키 꺼내기
             ResponseCookie accessCookie  = (ResponseCookie) data.get("accessCookie");
             ResponseCookie refreshCookie = (ResponseCookie) data.get("refreshCookie");
             MemberEntity member = (MemberEntity) data.get("memberInfo");
 
-            // 3️⃣ 응답 헤더에 쿠키 추가
+            //  응답 헤더에 쿠키 추가
             response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
             response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
-            // 4️⃣ 프론트로 리다이렉트 (필요하면 사용자 정보 같이 전달)
-            String redirectUrl = "https://livef.store:5173/oauth/success";
+
+            //  프론트로 리다이렉트 (필요하면 사용자 정보 같이 전달)
+            String redirectUrl = "https://livef.store/oauth/success";
             redirectUrl += "?memberId=" + URLEncoder.encode(member.getMemberId(), "UTF-8");
 
             response.sendRedirect(redirectUrl);

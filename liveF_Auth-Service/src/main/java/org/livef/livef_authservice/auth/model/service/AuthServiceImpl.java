@@ -95,7 +95,7 @@ public class AuthServiceImpl implements AuthService{
 				.domain("livef.store")    
 				.maxAge(maxAgeSeconds)
 				.httpOnly(true)           // 보안 유지
-				.secure(false)            // 로컬 개발 환경
+				.secure(true)            // 로컬 개발 환경
 				.sameSite("Lax")          // CSRF 보호
 				.build();
 

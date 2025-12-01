@@ -21,4 +21,4 @@ oauth2:
     base-url: https://kauth.kakao.com/oauth/authorize
     client-id: a22f21c9bf9938f2cca8bb10c3810bad
     client-secret: PRmxqYdstGTbKtnaYFQtMjLylrToMx5X
-    redirect-uri: http://livef.store/api/auth/kakao/callback
+    redirect-uri: https://livef.store/api/auth/kakao/callback
