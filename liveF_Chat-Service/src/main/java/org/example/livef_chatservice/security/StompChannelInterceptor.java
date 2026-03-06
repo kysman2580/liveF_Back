@@ -24,19 +24,10 @@ import java.util.List;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class StompChannelInterceptor implements ChannelInterceptor {
 
-    @Value("${app.security.internal-secret-key}")
-    private String expectedSecret;
-    private static final String INTERNAL_SECRET_HEADER = "X-Internal-Secret";
 
     private static final List<StompCommand> AUTH_REQUIRED_COMMANDS = List.of(
             StompCommand.SUBSCRIBE, StompCommand.SEND, StompCommand.MESSAGE
     );
-
-    @PostConstruct
-    public void logLoadedSecret() {
-        log.error("🔑 [CHAT] Loaded Secret Key (EXPECTED): [{}]", expectedSecret);
-    }
-
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -81,7 +72,6 @@ public class StompChannelInterceptor implements ChannelInterceptor {
     }
 
     private void handleConnect(StompHeaderAccessor accessor) {
-        // ⭐⭐⭐ 내부 시크릿 검증 로직 제거됨: 이제 JwtHandshakeInterceptor에서 처리합니다. ⭐⭐⭐
 
         // Handshake Interceptor가 저장한 인증 객체 복구
         if (accessor.getSessionAttributes() != null) {

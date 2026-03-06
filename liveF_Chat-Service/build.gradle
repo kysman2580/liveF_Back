@@ -30,6 +30,8 @@ dependencyManagement {
 dependencies {
 	// 1. 웹 + MVC + 내장 서버
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 
 	// 2. 웹소켓 + STOMP
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
