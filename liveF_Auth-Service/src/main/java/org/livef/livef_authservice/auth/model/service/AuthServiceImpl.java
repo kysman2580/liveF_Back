@@ -16,6 +16,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService{
+
+	@Value("${app.cookie.domain:}")
+	private String cookieDomain;
+	@Value("${app.cookie.secure:true}")
+	private boolean cookieSecure;
 
 	private final AuthenticationManager authenticationManager;
 	private Authentication authentication;
@@ -90,16 +96,17 @@ public class AuthServiceImpl implements AuthService{
 	}
 
 	private ResponseCookie buildCookie(String name, String token, int maxAgeSeconds) {
-		ResponseCookie cookie = ResponseCookie.from(name, token)
+		ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.from(name, token)
 				.path("/")
-				.domain("livef.store")    
 				.maxAge(maxAgeSeconds)
-				.httpOnly(true)           // 보안 유지
-				.secure(true)            // 로컬 개발 환경
-				.sameSite("None")          // CSRF 보호
-				.build();
-
-		log.info("🍪 쿠키 생성: name={}, domain=localhost, httpOnly=true", name);
+				.httpOnly(true)
+				.secure(cookieSecure)
+				.sameSite(cookieSecure ? "None" : "Lax");
+		if (cookieDomain != null && !cookieDomain.isBlank()) {
+			builder.domain(cookieDomain);
+		}
+		ResponseCookie cookie = builder.build();
+		log.info("🍪 쿠키 생성: name={}, domain={}, httpOnly=true", name, cookieDomain != null ? cookieDomain : "current host");
 		return cookie;
 	}
 

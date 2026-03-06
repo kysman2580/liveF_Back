@@ -2,7 +2,7 @@ package org.livef.livef_dataservice.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.ReactiveRedisTemplate;
+import org.livef.livef_dataservice.service.TeamService;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -14,20 +14,17 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/v1/feed/teams")
 public class TeamController {
 
-    private final ReactiveRedisTemplate<String, String> redisTemplate;
+    private final TeamService teamService;
 
     /**
      * 특정 리그의 팀 목록 조회
+     * 
      * @param leagueId 리그 ID
      */
     // ⭐️ [수정] PathVariable 대신 QueryParam을 사용하도록 변경 (RESTful API 디자인 통일성)
     @GetMapping
     public Mono<String> getTeamsByLeague(@RequestParam("leagueId") Integer leagueId) {
         log.info("=== Team API Called: /api/v1/feed/teams?leagueId={} ===", leagueId);
-        String key = "teams:league:" + leagueId;
-
-        return redisTemplate.opsForValue()
-                .get(key)
-                .defaultIfEmpty("[]");
+        return teamService.getTeamsByLeague(leagueId);
     }
 }

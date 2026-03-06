@@ -2,6 +2,7 @@ package org.livef.livef_dataservice.client;
 
 import lombok.RequiredArgsConstructor;
 import org.livef.livef_dataservice.dto.ApiFootballResponse;
+import org.livef.livef_dataservice.dto.StandingResponse;
 import org.livef.livef_dataservice.dto.TeamListResponse; // ⭐ Team DTO
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -47,6 +48,24 @@ public class ApiFootballClientImpl implements ApiFootballClient {
                 .bodyToMono(TeamListResponse.class)
                 .timeout(Duration.ofSeconds(10))
                 .retry(2);
+    }
+
+    @Override
+    public Mono<StandingResponse> fetchStandingsByLeague(Integer leagueId, String season) {
+        return webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/standings")
+                        .queryParam("league", leagueId)
+                        .queryParam("season", season)
+                        .build())
+                .retrieve()
+                .bodyToMono(StandingResponse.class)
+                .timeout(Duration.ofSeconds(10))
+                .retry(2)
+                .onErrorResume(e -> {
+                    System.err.println("Error fetching standings: " + e.getMessage());
+                    return Mono.empty();
+                });
     }
 }
 

@@ -7,8 +7,9 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebFluxSecurity
@@ -23,45 +24,37 @@ public class SecurityConfig {
 
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .cors(ServerHttpSecurity.CorsSpec::disable)
+                .cors(ServerHttpSecurity.CorsSpec::disable) // ✅ 게이트웨이와 충돌 방지를 위해 잘 끄셨습니다!
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
 
                 .authorizeExchange(exchanges -> exchanges
+                        // A. OPTIONS 요청(CORS Preflight)은 항상 허용
+                        .pathMatchers(HttpMethod.OPTIONS).permitAll()
 
-                        // A. 웹소켓은 인증 제외
-                        .pathMatchers("/ws/**",
-                                "/app/**",
-                                "/topic/**").permitAll()
+                        // B. 웹소켓 및 액추에이터 허용
+                        .pathMatchers("/ws/**", "/app/**", "/topic/**", "/actuator/**").permitAll()
 
-                        // B. 공개 GET API (feed, team, fixture)
+                        // C. 공개 데이터 API (Feed, Team, Fixture)
                         .pathMatchers(HttpMethod.GET, "/api/v1/feed/**").permitAll()
                         .pathMatchers(HttpMethod.GET, "/api/v1/team/**").permitAll()
                         .pathMatchers(HttpMethod.GET, "/api/v1/fixture/**").permitAll()
 
-                        // C. 인증 필요한 POST API
+                        // D. 인증이 필요한 특정 API들
                         .pathMatchers(HttpMethod.POST,
                                 "/api/test",
                                 "/api/member/mypage-info",
                                 "/api/auth/password-confirm",
                                 "/api/reviews").authenticated()
 
-                        // D. 나머지 변경 요청은 인증 필요
-                        .pathMatchers(HttpMethod.DELETE).authenticated()
-                        .pathMatchers(HttpMethod.PUT).authenticated()
-                        .pathMatchers(HttpMethod.PATCH).authenticated()
+                        // E. 나머지 모든 /api/** 요청은 인증 필요
+                        .pathMatchers("/api/**").authenticated()
 
-                        // E. 그 외 GET 요청은 인증 필요
-                        .pathMatchers(HttpMethod.GET).authenticated()
-
-                        // F. 그 외 POST 요청은 인증 필요
-                        .pathMatchers(HttpMethod.POST).authenticated()
-
-                        // G. 나머지 모든 요청은 인증 필요
-                        .anyExchange().authenticated()
+                        // F. 그 외 나머지는 모두 허용 (정적 리소스 등)
+                        .anyExchange().permitAll()
                 )
 
-                // Gateway에서 전달한 토큰 검증 필터
+                // Gateway에서 전달한 헤더 토큰 검증 필터
                 .addFilterAt(authFilter, SecurityWebFiltersOrder.AUTHENTICATION)
                 .build();
     }

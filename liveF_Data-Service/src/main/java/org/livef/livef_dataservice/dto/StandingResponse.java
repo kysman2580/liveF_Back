@@ -10,11 +10,9 @@ import java.util.Map;
 @Getter
 @Setter
 @ToString
-public class TeamListResponse {
+public class StandingResponse {
     private String get;
     private int results;
-
-    // JSON 디코딩 오류 해결 (Map 또는 List로 올 수 있음)
     private Object errors;
 
     public boolean hasErrors() {
@@ -28,9 +26,8 @@ public class TeamListResponse {
     }
 
     private Map<String, String> parameters;
-    private Paging paging; // (Paging DTO는 별도로 정의되어야 함)
+    private Paging paging;
 
-    // ⭐ response 필드를 새로 만든 TeamApiInfo 목록으로 매핑
     @JsonProperty("response")
-    private List<TeamApiInfo> response;
+    private List<LeagueStanding> response;
 }

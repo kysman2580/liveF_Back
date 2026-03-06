@@ -1,4 +1,4 @@
-package org.livef.livef_dataservice.repoisitory;
+package org.livef.livef_dataservice.repository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,8 +40,15 @@ public class FixtureCacheRepository {
         String key = "fixtures:" + date;
         return redisTemplate.opsForValue()
                 .get(key)
-                .switchIfEmpty(Mono.just("[]"))
-                .doOnNext(json -> log.info("Redis Hit: {}", key))
+                .switchIfEmpty(Mono.defer(() -> {
+                    log.warn("Redis Miss: Key '{}' not found. Returning empty JSON array.", key);
+                    return Mono.just("[]");
+                }))
+                .doOnNext(json -> {
+                    if (!"[]".equals(json)) {
+                        log.info("Redis Hit: {}", key);
+                    }
+                })
                 .doOnError(e -> log.error("Redis Error: {}", key, e));
     }
 }

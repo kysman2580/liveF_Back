@@ -1,11 +1,11 @@
 package org.livef.livef_apigateway.component;
 import javax.crypto.SecretKey;
 
+import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 
@@ -23,12 +23,12 @@ public class JwtUtil {
 		byte[] keyArr = Base64.getDecoder().decode(secretKey);
 		this.key = Keys.hmacShaKeyFor(keyArr);
 	}
-	
+
 	public Claims parseJwt(String token) { // JWT 검증 및 페이로드 추출
-		return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+		return Jwts.parser()
+				.verifyWith(key)  // setSigningKey 대신 verifyWith 사용
+				.build()
+				.parseSignedClaims(token)  // parseClaimsJws 대신 parseSignedClaims 사용
+				.getPayload();  // getBody 대신 getPayload 사용
 	}
 }

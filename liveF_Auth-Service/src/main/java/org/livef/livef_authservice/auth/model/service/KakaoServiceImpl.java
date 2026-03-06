@@ -47,6 +47,10 @@ public class KakaoServiceImpl implements KakaoService {
 	
 	@Value("${oauth2.kakao.base-url}")
 	private String baseUrl;
+	@Value("${app.cookie.domain:}")
+	private String cookieDomain;
+	@Value("${app.cookie.secure:true}")
+	private boolean cookieSecure;
 
 	@Value("${oauth2.kakao.client-id}")
 	private String clientId;
@@ -178,14 +182,16 @@ public class KakaoServiceImpl implements KakaoService {
 
 
 	private ResponseCookie buildCookie(String name, String token, int maxAgeSeconds) {
-	    return ResponseCookie.from(name, token)
-	        .path("/")
-	        .domain("livef.store")
-	        .maxAge(maxAgeSeconds)
-	        .httpOnly(true)
-	        .secure(true)
-	        .sameSite("None")// 로컬 http 개발이면 false
-	        .build();
+		ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.from(name, token)
+				.path("/")
+				.maxAge(maxAgeSeconds)
+				.httpOnly(true)
+				.secure(cookieSecure)
+				.sameSite(cookieSecure ? "None" : "Lax");
+		if (cookieDomain != null && !cookieDomain.isBlank()) {
+			builder.domain(cookieDomain);
+		}
+		return builder.build();
 	}
 	
 }

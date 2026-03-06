@@ -9,6 +9,7 @@ import org.livef.livef_authservice.auth.model.service.AuthServiceImpl;
 import org.livef.livef_authservice.token.model.domain.RefreshToken;
 import org.livef.livef_authservice.token.model.repository.RefreshTokenRepository;
 import org.livef.livef_authservice.token.util.TokenUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,11 @@ public class TokenServiceImpl implements TokenService {
 
 	private final TokenUtil tokenUtil;
 	private final RefreshTokenRepository refreshTokenRepository;
+
+	@Value("${app.cookie.domain:}")
+	private String cookieDomain;
+	@Value("${app.cookie.secure:true}")
+	private boolean cookieSecure;
 
 	@Override
 	public Map<String, Object> generateToken(String memberId, Long memberNo) {
@@ -67,16 +73,17 @@ public class TokenServiceImpl implements TokenService {
 		return Response;
 	}
 
-	// ⭐⭐⭐ 핵심 수정: domain 추가!
 	private ResponseCookie buildCookie(String name, String token, int maxAgeSeconds) {
-		return ResponseCookie.from(name, token)
+		ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.from(name, token)
 				.path("/")
-				.domain("livef.store")      // ⭐ 이게 핵심!
 				.maxAge(maxAgeSeconds)
-				.httpOnly(true)           // ⭐ 보안 유지
-				.secure(true)
-				.sameSite("None")
-				.build();
+				.httpOnly(true)
+				.secure(cookieSecure)
+				.sameSite(cookieSecure ? "None" : "Lax");
+		if (cookieDomain != null && !cookieDomain.isBlank()) {
+			builder.domain(cookieDomain);
+		}
+		return builder.build();
 	}
 
 	private String getUsernameByToken(String refreshToken) {
