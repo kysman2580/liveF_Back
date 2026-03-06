@@ -6,9 +6,5 @@ spring:
   config:
     import: optional:configserver:http://admin:1234@localhost:9000
 
-eureka:
-  instance:
-    ip-address: 127.0.0.1
-    hostname: localhost
-    instance-id: ${eureka.instance.ip-address}:${spring.application.name}:${server.port}
+
 
